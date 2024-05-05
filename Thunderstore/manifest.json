@@ -1,0 +1,10 @@
+﻿{
+	"name": "ArtifactOfPrestige",
+	"version_number": "1.0.0",
+	"website_url": "",
+	"description": "Implements the Artifact of Prestige exactly as it appears in RoRR: \"At least one Shrine of the Mountain spawns every stage. Shrine of the Mountain effects are permanent.",
+	"dependencies": [
+		"bbepis-BepInExPack-5.4.2108",
+		"RiskofThunder-HookGenPatcher-1.2.3",
+	]
+}
