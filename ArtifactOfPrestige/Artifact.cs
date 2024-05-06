@@ -10,6 +10,7 @@ using RoR2;
 using System.Linq;
 using UnityEngine.SceneManagement;
 using static RoR2.TeleporterInteraction;
+using UnityEngine.UIElements;
 
 
 namespace ArtifactOfPrestige
@@ -21,6 +22,7 @@ namespace ArtifactOfPrestige
         public override string ArtifactDescription => "At least one Shrine of the Mountain spawns every stage. Shrine of the Mountain effects are permanent.";
         public override Sprite ArtifactEnabledIcon => Assets.mainAssetBundle.LoadAsset<Sprite>("enabled.png");
         public override Sprite ArtifactDisabledIcon => Assets.mainAssetBundle.LoadAsset<Sprite>("disabled.png");
+        public Vector4 pink = new Vector4(0.8f, 0.13f, 0.6f, 1.0f);
         public override void Init(ConfigFile config)
         {
             CreateLang();
@@ -34,6 +36,8 @@ namespace ArtifactOfPrestige
             Stage.onServerStageBegin += SetValues;
             On.RoR2.TeleporterInteraction.AddShrineStack += UpdateValues;
             On.RoR2.SceneDirector.PopulateScene += SpawnShrine;
+            On.RoR2.ShrineBossBehavior.Start += ShrineMat;
+            On.RoR2.TeleporterInteraction.Awake += TPMat;
         }
 
         private void UpdateValues(On.RoR2.TeleporterInteraction.orig_AddShrineStack orig, TeleporterInteraction self)
@@ -58,6 +62,30 @@ namespace ArtifactOfPrestige
             }
         }
 
+        private void ShrineMat(On.RoR2.ShrineBossBehavior.orig_Start orig, ShrineBossBehavior self)
+        {
+            if (ArtifactEnabled)
+            {
+                var myRend = self.gameObject.transform.Find("Symbol").GetComponent<MeshRenderer>();
+                Material[] materials = myRend.materials;
+                materials[0].SetColor("_TintColor", pink);
+                myRend.materials = materials;
+            }
+            orig(self);
+        }
+
+        private void TPMat(On.RoR2.TeleporterInteraction.orig_Awake orig, TeleporterInteraction self)
+        {
+            orig(self);
+            if (ArtifactEnabled)
+            {
+                var myRend = self.bossShrineIndicator.GetComponent<MeshRenderer>();
+                Material[] materials = myRend.materials;
+                materials[0].SetColor("_TintColor", pink);
+                myRend.materials = materials;
+            }
+        }
+
         private void ResetValues(Run run)
         {
             if (NetworkServer.active && ArtifactEnabled) { ArtifactOfPrestige.ResetValues(); }
@@ -68,7 +96,6 @@ namespace ArtifactOfPrestige
             if (ArtifactEnabled && SceneInfo.instance.countsAsStage && (bool)self.teleporterSpawnCard)
             {
                 Xoroshiro128Plus xoroshiro128Plus2 = new Xoroshiro128Plus(self.rng.nextUlong);
-                var spawnCard = LegacyResourcesAPI.Load<SpawnCard>("SpawnCards/InteractableSpawnCard/iscShrineBoss");
 
                 DirectorCore.instance.TrySpawnObject(new DirectorSpawnRequest(LegacyResourcesAPI.Load<SpawnCard>("SpawnCards/InteractableSpawnCard/iscShrineBoss"), new DirectorPlacementRule
                 {

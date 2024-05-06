@@ -25,7 +25,7 @@ namespace ArtifactOfPrestige
         public const string PluginGUID = PluginAuthor + "." + PluginName;
         public const string PluginAuthor = "Miyowi";
         public const string PluginName = "ArtifactOfPrestige";
-        public const string PluginVersion = "1.0.0";
+        public const string PluginVersion = "1.1.0";
 
         public static PluginInfo pluginInfo;
 

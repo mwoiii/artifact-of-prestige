@@ -1,3 +1,7 @@
+## 1.1.0
+
+- Mountain shrine symbol is now pink when the artifact is active, like in Returns
+
 ## 1.0.0
 
 - Implemented Artifact of Prestige
