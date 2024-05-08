@@ -33,7 +33,8 @@ namespace ArtifactOfPrestige
         public override void Hooks()
         {
             Run.onRunStartGlobal += ResetValues;
-            Stage.onServerStageBegin += SetValues;
+            Stage.onStageStartGlobal += SetValues;
+            TeleporterInteraction.onTeleporterChargedGlobal += HideLocalIndicators;
             On.RoR2.TeleporterInteraction.AddShrineStack += UpdateValues;
             On.RoR2.SceneDirector.PopulateScene += SpawnShrine;
             On.RoR2.ShrineBossBehavior.Start += ShrineMat;
@@ -42,23 +43,35 @@ namespace ArtifactOfPrestige
 
         private void UpdateValues(On.RoR2.TeleporterInteraction.orig_AddShrineStack orig, TeleporterInteraction self)
         {
-            if (NetworkServer.active && self.activationState <= ActivationState.IdleToCharging && ArtifactEnabled)
+            if (self.activationState <= ActivationState.IdleToCharging && ArtifactEnabled)
             {
                 ArtifactOfPrestige.bonusRewardCount++;
-                ArtifactOfPrestige.shrineBonusStacks++;
                 ArtifactOfPrestige.NetworkshowExtraBossesIndicator = true;
+                Networking.InvokeAddIndicator();
             }
             orig(self);
         }
 
         private void SetValues(Stage stage)
-        {
+        {    
             if ((TeleporterInteraction.instance ?? false) && ArtifactEnabled)
             {
+                ArtifactOfPrestige.localIndicators = [];
+                ArtifactOfPrestige.offset = 0;
                 var tp = TeleporterInteraction.instance;
-                tp.bossGroup.bonusRewardCount = ArtifactOfPrestige.bonusRewardCount;
-                tp.shrineBonusStacks = ArtifactOfPrestige.shrineBonusStacks;
-                tp.NetworkshowExtraBossesIndicator = ArtifactOfPrestige.NetworkshowExtraBossesIndicator;
+                if (NetworkServer.active)
+                {
+                    tp.bossGroup.bonusRewardCount = ArtifactOfPrestige.bonusRewardCount;
+                    tp.shrineBonusStacks = ArtifactOfPrestige.shrineBonusStacks;
+                    tp.NetworkshowExtraBossesIndicator = ArtifactOfPrestige.NetworkshowExtraBossesIndicator;
+                }
+                if (ArtifactOfPrestige.shrineBonusStacks > 1)
+                {
+                    for (int i = 0; i < ArtifactOfPrestige.shrineBonusStacks - 1; i++)
+                    {
+                        LocalAddIndicator();
+                    }
+                }
             }
         }
 
@@ -88,7 +101,7 @@ namespace ArtifactOfPrestige
 
         private void ResetValues(Run run)
         {
-            if (NetworkServer.active && ArtifactEnabled) { ArtifactOfPrestige.ResetValues(); }
+            if (ArtifactEnabled) { ArtifactOfPrestige.ResetValues(); }
         }
 
         private void SpawnShrine(On.RoR2.SceneDirector.orig_PopulateScene orig, SceneDirector self)
@@ -103,6 +116,29 @@ namespace ArtifactOfPrestige
                 }, xoroshiro128Plus2));
             }
             orig(self);
+        }
+
+        private void HideLocalIndicators(TeleporterInteraction teleporterInteraction)
+        {
+            if (ArtifactEnabled)
+            {
+                foreach (var indicator in ArtifactOfPrestige.localIndicators)
+                {
+                    indicator.SetActive(false);
+                }
+            }
+        }
+
+        private void LocalAddIndicator()
+        {
+            var instance = TeleporterInteraction.instance;
+            var original = instance.bossShrineIndicator;
+            var child = GameObject.Instantiate(original);
+            child.transform.parent = instance.gameObject.transform;
+            child.transform.position = original.transform.position + new Vector3(0, ArtifactOfPrestige.offset + 2, 0);
+            ArtifactOfPrestige.offset += 2;
+            child.SetActive(true);
+            ArtifactOfPrestige.localIndicators.Add(child);
         }
     }
 }
