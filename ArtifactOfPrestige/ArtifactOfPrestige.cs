@@ -10,29 +10,35 @@ using System.Linq;
 using UnityEngine.SceneManagement;
 using System.Reflection;
 using R2API.Utils;
+using RiskOfOptions;
+using BepInEx.Configuration;
 
 
 namespace ArtifactOfPrestige
 {
+    [BepInDependency("com.rune580.riskofoptions", BepInDependency.DependencyFlags.SoftDependency)]
 
-    // don't touch these
     [BepInDependency(LanguageAPI.PluginGUID)]
 
-    // This attribute is required, and lists metadata for your plugin.
     [BepInPlugin(PluginGUID, PluginName, PluginVersion)]
 
     public class ArtifactOfPrestige : BaseUnityPlugin
     {
         public static ArtifactOfPrestige instance;
-        //Static references so we do not need to do tricky things with passing references.
+
         internal static GameObject CentralNetworkObject;
         private static GameObject _centralNetworkObjectSpawned;
-
 
         public const string PluginGUID = PluginAuthor + "." + PluginName;
         public const string PluginAuthor = "Miyowi";
         public const string PluginName = "ArtifactOfPrestige";
-        public const string PluginVersion = "1.2.0";
+        public const string PluginVersion = "1.2.2";
+
+        public static ConfigEntry<bool> stackingIndicators { get; set; }
+        public static ConfigEntry<bool> colouredIndicators { get; set; }
+        public static ConfigEntry<Color> indicatorColor { get; set; }
+        public static ConfigEntry<bool> stackOutsidePrestige { get; set; }
+        public static ConfigEntry<bool> colouredOutsidePrestige { get; set; }
 
         public static PluginInfo pluginInfo;
 
@@ -55,6 +61,17 @@ namespace ArtifactOfPrestige
             CentralNetworkObject = tmpGo.InstantiateClone("somethingUnique");
             GameObject.Destroy(tmpGo);
             CentralNetworkObject.AddComponent<Networking>();
+
+            stackingIndicators = Config.Bind("Artifact of Prestige", "Stacking Indicators", true, "When more than one Shrine of the Mountain is activated, Shrine of the Mountain indicators stack above each other on the teleporter.");
+            colouredIndicators = Config.Bind("Artifact of Prestige", "Coloured Indicator", true, "Shrine of the Mountain indicators are coloured differently to normal.");
+            indicatorColor = Config.Bind("Artifact of Prestige", "Indicator Colour", new Color(0.8f, 0.13f, 0.6f, 1.0f), "If 'Coloured Indicator' is enabled, the colour that indicators are changed to.");
+            stackOutsidePrestige = Config.Bind("General", "Stacking Indicators Outside Prestige", false, "Stacking Shrine of the Mountain indicators occurs in regular runs. Overrides 'Stacking Indicators'.");
+            colouredOutsidePrestige = Config.Bind("General", "Coloured Indicators Outside Prestige", false, "Shrine of the Mountain indicators are coloured to the value set by 'Indicator Colour' in regular runs. Overrides 'Coloured Indicator'.");
+           
+            if (RiskOfOptionsCompatibility.enabled)
+            {
+                RiskOfOptionsCompatibility.OptionsInit();
+            }
 
             var ArtifactTypes = Assembly.GetExecutingAssembly().GetTypes().Where(type => !type.IsAbstract && type.IsSubclassOf(typeof(ArtifactBase)));
             foreach (var artifactType in ArtifactTypes)
@@ -107,18 +124,19 @@ namespace ArtifactOfPrestige
         {
             instance = this;
         }
-        public static void InvokeAddIndicator()
+        public static void InvokeAddIndicator(bool artifactEnabled)
         {
             ArtifactOfPrestige.CheckNetworkObject();
-            instance.RpcAddIndicator();
+            instance.RpcAddIndicator(artifactEnabled);
         }
 
         // Called when a mountain shrine is hit
         [ClientRpc]
-        private void RpcAddIndicator()
+        private void RpcAddIndicator(bool artifactEnabled)
         {
+            if ((artifactEnabled && ArtifactOfPrestige.stackingIndicators.Value || ArtifactOfPrestige.stackOutsidePrestige.Value))
             ArtifactOfPrestige.shrineBonusStacks++;
-            if (ArtifactOfPrestige.shrineBonusStacks > 1)
+            if (ArtifactOfPrestige.shrineBonusStacks > 1 && ArtifactOfPrestige.stackingIndicators.Value)
             {
                 var instance = TeleporterInteraction.instance;
                 var original = instance.bossShrineIndicator;

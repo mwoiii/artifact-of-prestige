@@ -22,7 +22,7 @@ namespace ArtifactOfPrestige
         public override string ArtifactDescription => "At least one Shrine of the Mountain spawns every stage. Shrine of the Mountain effects are permanent.";
         public override Sprite ArtifactEnabledIcon => Assets.mainAssetBundle.LoadAsset<Sprite>("enabled.png");
         public override Sprite ArtifactDisabledIcon => Assets.mainAssetBundle.LoadAsset<Sprite>("disabled.png");
-        public Vector4 pink = new Vector4(0.8f, 0.13f, 0.6f, 1.0f);
+        public Color pink = new Color(0.8f, 0.13f, 0.6f, 1.0f);
         public override void Init(ConfigFile config)
         {
             CreateLang();
@@ -43,18 +43,18 @@ namespace ArtifactOfPrestige
 
         private void UpdateValues(On.RoR2.TeleporterInteraction.orig_AddShrineStack orig, TeleporterInteraction self)
         {
-            if (self.activationState <= ActivationState.IdleToCharging && ArtifactEnabled)
+            if (self.activationState <= ActivationState.IdleToCharging)
             {
                 ArtifactOfPrestige.bonusRewardCount++;
                 ArtifactOfPrestige.NetworkshowExtraBossesIndicator = true;
-                Networking.InvokeAddIndicator();
+                Networking.InvokeAddIndicator(ArtifactEnabled);
             }
             orig(self);
         }
 
         private void SetValues(Stage stage)
         {    
-            if ((TeleporterInteraction.instance ?? false) && ArtifactEnabled)
+            if ((TeleporterInteraction.instance ?? false) && (ArtifactEnabled || ArtifactOfPrestige.stackOutsidePrestige.Value))
             {
                 ArtifactOfPrestige.localIndicators = [];
                 ArtifactOfPrestige.offset = 0;
@@ -65,7 +65,7 @@ namespace ArtifactOfPrestige
                     tp.shrineBonusStacks = ArtifactOfPrestige.shrineBonusStacks;
                     tp.NetworkshowExtraBossesIndicator = ArtifactOfPrestige.NetworkshowExtraBossesIndicator;
                 }
-                if (ArtifactOfPrestige.shrineBonusStacks > 1)
+                if (ArtifactOfPrestige.shrineBonusStacks > 1 && (ArtifactOfPrestige.stackingIndicators.Value || ArtifactOfPrestige.stackOutsidePrestige.Value))
                 {
                     for (int i = 0; i < ArtifactOfPrestige.shrineBonusStacks - 1; i++)
                     {
@@ -77,11 +77,11 @@ namespace ArtifactOfPrestige
 
         private void ShrineMat(On.RoR2.ShrineBossBehavior.orig_Start orig, ShrineBossBehavior self)
         {
-            if (ArtifactEnabled)
+            if ((ArtifactEnabled && ArtifactOfPrestige.colouredIndicators.Value) || ArtifactOfPrestige.colouredOutsidePrestige.Value)
             {
                 var myRend = self.gameObject.transform.Find("Symbol").GetComponent<MeshRenderer>();
                 Material[] materials = myRend.materials;
-                materials[0].SetColor("_TintColor", pink);
+                materials[0].SetColor("_TintColor", ArtifactOfPrestige.indicatorColor.Value);
                 myRend.materials = materials;
             }
             orig(self);
@@ -90,11 +90,11 @@ namespace ArtifactOfPrestige
         private void TPMat(On.RoR2.TeleporterInteraction.orig_Awake orig, TeleporterInteraction self)
         {
             orig(self);
-            if (ArtifactEnabled)
+            if ((ArtifactEnabled && ArtifactOfPrestige.colouredIndicators.Value) || ArtifactOfPrestige.colouredOutsidePrestige.Value)
             {
                 var myRend = self.bossShrineIndicator.GetComponent<MeshRenderer>();
                 Material[] materials = myRend.materials;
-                materials[0].SetColor("_TintColor", pink);
+                materials[0].SetColor("_TintColor", ArtifactOfPrestige.indicatorColor.Value);
                 myRend.materials = materials;
             }
         }

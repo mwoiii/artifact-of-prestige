@@ -1,3 +1,13 @@
+## 1.2.2
+
+- Added BepInEx config for:
+  - Shrine symbol stacking
+  - Shrine symbol colours
+  - Enabling symbol stacking in regular runs
+  - Enabling different shrine symbol colours in regular runs
+
+- Config supports Risk of Options
+
 ## 1.2.1
 
 - Fixed symbols not being removed after TP is finished charging
