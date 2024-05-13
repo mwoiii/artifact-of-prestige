@@ -1,3 +1,7 @@
+## 1.2.3
+
+- Fixed the symbol stacking option behaving exactly the same as the artifact & carrying between stages
+
 ## 1.2.2
 
 - Added BepInEx config for:

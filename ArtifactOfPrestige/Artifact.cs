@@ -53,11 +53,12 @@ namespace ArtifactOfPrestige
         }
 
         private void SetValues(Stage stage)
-        {    
-            if ((TeleporterInteraction.instance ?? false) && (ArtifactEnabled || ArtifactOfPrestige.stackOutsidePrestige.Value))
+        {
+            ArtifactOfPrestige.localIndicators = [];
+            ArtifactOfPrestige.offset = 0;
+
+            if ((TeleporterInteraction.instance ?? false) && ArtifactEnabled)
             {
-                ArtifactOfPrestige.localIndicators = [];
-                ArtifactOfPrestige.offset = 0;
                 var tp = TeleporterInteraction.instance;
                 if (NetworkServer.active)
                 {
@@ -65,7 +66,7 @@ namespace ArtifactOfPrestige
                     tp.shrineBonusStacks = ArtifactOfPrestige.shrineBonusStacks;
                     tp.NetworkshowExtraBossesIndicator = ArtifactOfPrestige.NetworkshowExtraBossesIndicator;
                 }
-                if (ArtifactOfPrestige.shrineBonusStacks > 1 && (ArtifactOfPrestige.stackingIndicators.Value || ArtifactOfPrestige.stackOutsidePrestige.Value))
+                if (ArtifactOfPrestige.shrineBonusStacks > 1 && ArtifactOfPrestige.stackingIndicators.Value)
                 {
                     for (int i = 0; i < ArtifactOfPrestige.shrineBonusStacks - 1; i++)
                     {
@@ -101,7 +102,7 @@ namespace ArtifactOfPrestige
 
         private void ResetValues(Run run)
         {
-            if (ArtifactEnabled) { ArtifactOfPrestige.ResetValues(); }
+            if (ArtifactEnabled || ArtifactOfPrestige.stackOutsidePrestige.Value) { ArtifactOfPrestige.ResetValues(); }
         }
 
         private void SpawnShrine(On.RoR2.SceneDirector.orig_PopulateScene orig, SceneDirector self)
@@ -120,7 +121,7 @@ namespace ArtifactOfPrestige
 
         private void HideLocalIndicators(TeleporterInteraction teleporterInteraction)
         {
-            if (ArtifactEnabled)
+            if (ArtifactEnabled || ArtifactOfPrestige.stackOutsidePrestige.Value)
             {
                 foreach (var indicator in ArtifactOfPrestige.localIndicators)
                 {
