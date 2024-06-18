@@ -1,3 +1,8 @@
+## 1.2.4
+
+- Fixed extra items not working?? Was it even broken??
+- Updated dependency string
+
 ## 1.2.3
 
 - Fixed the symbol stacking option behaving exactly the same as the artifact & carrying between stages

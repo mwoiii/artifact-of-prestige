@@ -22,6 +22,7 @@ namespace ArtifactOfPrestige
         public override string ArtifactDescription => "At least one Shrine of the Mountain spawns every stage. Shrine of the Mountain effects are permanent.";
         public override Sprite ArtifactEnabledIcon => Assets.mainAssetBundle.LoadAsset<Sprite>("enabled.png");
         public override Sprite ArtifactDisabledIcon => Assets.mainAssetBundle.LoadAsset<Sprite>("disabled.png");
+
         public Color pink = new Color(0.8f, 0.13f, 0.6f, 1.0f);
         public override void Init(ConfigFile config)
         {
@@ -34,9 +35,10 @@ namespace ArtifactOfPrestige
         {
             Run.onRunStartGlobal += ResetValues;
             Stage.onStageStartGlobal += SetValues;
-            TeleporterInteraction.onTeleporterChargedGlobal += HideLocalIndicators;
             On.RoR2.TeleporterInteraction.AddShrineStack += UpdateValues;
             On.RoR2.SceneDirector.PopulateScene += SpawnShrine;
+
+            TeleporterInteraction.onTeleporterChargedGlobal += HideLocalIndicators;
             On.RoR2.ShrineBossBehavior.Start += ShrineMat;
             On.RoR2.TeleporterInteraction.Awake += TPMat;
         }

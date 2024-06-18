@@ -32,7 +32,7 @@ namespace ArtifactOfPrestige
         public const string PluginGUID = PluginAuthor + "." + PluginName;
         public const string PluginAuthor = "Miyowi";
         public const string PluginName = "ArtifactOfPrestige";
-        public const string PluginVersion = "1.2.3";
+        public const string PluginVersion = "1.2.4";
 
         public static ConfigEntry<bool> stackingIndicators { get; set; }
         public static ConfigEntry<bool> colouredIndicators { get; set; }
@@ -40,7 +40,7 @@ namespace ArtifactOfPrestige
         public static ConfigEntry<bool> stackOutsidePrestige { get; set; }
         public static ConfigEntry<bool> colouredOutsidePrestige { get; set; }
 
-        public static PluginInfo pluginInfo;
+        public static BepInEx.PluginInfo pluginInfo;
 
         public List<ArtifactBase> Artifacts = new List<ArtifactBase>();
         public static int bonusRewardCount = 0;
