@@ -8,7 +8,7 @@ namespace ArtifactOfPrestige
     public static class Assets
     {
         public static AssetBundle mainAssetBundle = null;
-        internal static string assetBundleName = "icons";
+        internal static string assetBundleName = "artifactofprestigeicons";
 
         internal static string assemblyDir
         {

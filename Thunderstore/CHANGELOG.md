@@ -1,3 +1,7 @@
+## 1.2.5
+
+- Renamed asset bundle to reduce chance of mod conflicts
+
 ## 1.2.4
 
 - Fixed extra items not working?? Was it even broken??
