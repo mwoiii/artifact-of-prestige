@@ -59,6 +59,11 @@ namespace ArtifactOfPrestige
             ArtifactOfPrestige.localIndicators = [];
             ArtifactOfPrestige.offset = 0;
 
+            if (ArtifactOfPrestige.stackOutsidePrestige.Value && !ArtifactEnabled)
+            {
+                ArtifactOfPrestige.shrineBonusStacks = 0;
+            }
+
             if ((TeleporterInteraction.instance ?? false) && ArtifactEnabled)
             {
                 var tp = TeleporterInteraction.instance;

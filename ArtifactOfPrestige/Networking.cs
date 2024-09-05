@@ -29,8 +29,10 @@ namespace ArtifactOfPrestige
         [ClientRpc]
         private void RpcAddIndicator(bool artifactEnabled)
         {
-            if ((artifactEnabled && ArtifactOfPrestige.stackingIndicators.Value || ArtifactOfPrestige.stackOutsidePrestige.Value))
-            ArtifactOfPrestige.shrineBonusStacks++;
+            if ((artifactEnabled && ArtifactOfPrestige.stackingIndicators.Value) || ArtifactOfPrestige.stackOutsidePrestige.Value)
+            {
+                ArtifactOfPrestige.shrineBonusStacks++;
+            }
             if (ArtifactOfPrestige.shrineBonusStacks > 1 && ArtifactOfPrestige.stackingIndicators.Value)
             {
                 var instance = TeleporterInteraction.instance;
