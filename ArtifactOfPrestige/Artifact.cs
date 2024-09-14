@@ -11,6 +11,7 @@ using System.Linq;
 using UnityEngine.SceneManagement;
 using static RoR2.TeleporterInteraction;
 using UnityEngine.UIElements;
+using Newtonsoft.Json;
 
 
 namespace ArtifactOfPrestige
@@ -41,6 +42,34 @@ namespace ArtifactOfPrestige
             TeleporterInteraction.onTeleporterChargedGlobal += HideLocalIndicators;
             On.RoR2.ShrineBossBehavior.Start += ShrineMat;
             On.RoR2.TeleporterInteraction.Awake += TPMat;
+
+            // ProperSave compatibility
+            if (ProperSaveCompatibility.enabled)
+            {
+                ProperSaveCompatibility.AddEvent(SavePrestigeSettings);
+            }
+        }
+
+        private void SavePrestigeSettings(Dictionary<string, object> dict)
+        {
+            if (ArtifactEnabled)
+            {
+                string jsonString = JsonConvert.SerializeObject(new ArtifactOfPrestige_ProperSaveObj());
+                dict.Add("ArtifactOfPrestigeObj", jsonString);
+            }
+        }
+
+        private void LoadProperSave()
+        {
+            if (ArtifactEnabled && ProperSaveCompatibility.enabled && ProperSave.Loading.IsLoading)
+            {
+                string jsonString = ProperSaveCompatibility.GetModdedData("ArtifactOfPrestigeObj");
+
+                ArtifactOfPrestige_ProperSaveObj dataObj = JsonConvert.DeserializeObject<ArtifactOfPrestige_ProperSaveObj>(jsonString);
+                ArtifactOfPrestige.bonusRewardCount = dataObj.bonusRewardCount;
+                ArtifactOfPrestige.shrineBonusStacks = dataObj.shrineBonusStacks;
+                ArtifactOfPrestige.NetworkshowExtraBossesIndicator = dataObj.NetworkshowExtraBossesIndicator;
+            }
         }
 
         private void UpdateValues(On.RoR2.TeleporterInteraction.orig_AddShrineStack orig, TeleporterInteraction self)
@@ -109,7 +138,10 @@ namespace ArtifactOfPrestige
 
         private void ResetValues(Run run)
         {
-            if (ArtifactEnabled || ArtifactOfPrestige.stackOutsidePrestige.Value) { ArtifactOfPrestige.ResetValues(); }
+            if (ArtifactEnabled || ArtifactOfPrestige.stackOutsidePrestige.Value) {
+                ArtifactOfPrestige.ResetValues();
+            }
+            LoadProperSave(); // loading from ProperSave, if it's active
         }
 
         private void SpawnShrine(On.RoR2.SceneDirector.orig_PopulateScene orig, SceneDirector self)

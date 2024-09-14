@@ -1,9 +1,12 @@
-# 1.2.6
+## 1.3.0
+- Added support for ProperSave
+
+## 1.2.6
 
 - Fixed an issue where the stacking indicator outside prestige setting was not working properly
 - Updated mod icon
 
-# 1.2.5
+## 1.2.5
 
 - Renamed asset bundle to reduce chance of mod conflicts
 

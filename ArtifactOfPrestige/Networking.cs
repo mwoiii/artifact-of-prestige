@@ -1,4 +1,3 @@
-
 using BepInEx;
 using R2API;
 using RoR2;

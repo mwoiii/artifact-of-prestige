@@ -1,10 +1,11 @@
 ﻿{
 	"name": "ArtifactOfPrestige",
-	"version_number": "1.2.6",
+	"version_number": "1.3.0",
 	"website_url": "https://github.com/mwoiii/artifact-of-prestige",
 	"description": "Implements the Artifact of Prestige exactly as it appears in Returns: At least one Shrine of the Mountain spawns every stage. Shrine of the Mountain effects are permanent. Also changes effect visuals to be like Returns (configurable).",
 	"dependencies": [
 		"bbepis-BepInExPack-5.4.2108",
-		"RiskofThunder-HookGenPatcher-1.2.3"
+		"RiskofThunder-HookGenPatcher-1.2.3",
+		"RiskofThunder-R2API_Core-5.1.1"
 	]
 }

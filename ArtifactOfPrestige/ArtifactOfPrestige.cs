@@ -18,6 +18,8 @@ namespace ArtifactOfPrestige
 {
     [BepInDependency("com.rune580.riskofoptions", BepInDependency.DependencyFlags.SoftDependency)]
 
+    [BepInDependency("com.KingEnderBrine.ProperSave", BepInDependency.DependencyFlags.SoftDependency)]
+
     [BepInDependency(LanguageAPI.PluginGUID)]
 
     [BepInPlugin(PluginGUID, PluginName, PluginVersion)]
@@ -32,7 +34,7 @@ namespace ArtifactOfPrestige
         public const string PluginGUID = PluginAuthor + "." + PluginName;
         public const string PluginAuthor = "Miyowi";
         public const string PluginName = "ArtifactOfPrestige";
-        public const string PluginVersion = "1.2.6";
+        public const string PluginVersion = "1.3.0";
 
         public static ConfigEntry<bool> stackingIndicators { get; set; }
         public static ConfigEntry<bool> colouredIndicators { get; set; }
