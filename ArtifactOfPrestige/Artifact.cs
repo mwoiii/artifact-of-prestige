@@ -61,14 +61,17 @@ namespace ArtifactOfPrestige
 
         private void LoadProperSave()
         {
-            if (ArtifactEnabled && ProperSaveCompatibility.enabled && ProperSave.Loading.IsLoading)
+            if (ProperSaveCompatibility.enabled)
             {
-                string jsonString = ProperSaveCompatibility.GetModdedData("ArtifactOfPrestigeObj");
+                if (ArtifactEnabled && ProperSaveCompatibility.IsLoading)
+                {
+                    string jsonString = ProperSaveCompatibility.GetModdedData("ArtifactOfPrestigeObj");
 
-                ArtifactOfPrestige_ProperSaveObj dataObj = JsonConvert.DeserializeObject<ArtifactOfPrestige_ProperSaveObj>(jsonString);
-                ArtifactOfPrestige.bonusRewardCount = dataObj.bonusRewardCount;
-                ArtifactOfPrestige.shrineBonusStacks = dataObj.shrineBonusStacks;
-                ArtifactOfPrestige.NetworkshowExtraBossesIndicator = dataObj.NetworkshowExtraBossesIndicator;
+                    ArtifactOfPrestige_ProperSaveObj dataObj = JsonConvert.DeserializeObject<ArtifactOfPrestige_ProperSaveObj>(jsonString);
+                    ArtifactOfPrestige.bonusRewardCount = dataObj.bonusRewardCount;
+                    ArtifactOfPrestige.shrineBonusStacks = dataObj.shrineBonusStacks;
+                    ArtifactOfPrestige.NetworkshowExtraBossesIndicator = dataObj.NetworkshowExtraBossesIndicator;
+                }
             }
         }
 

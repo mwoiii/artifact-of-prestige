@@ -1,3 +1,6 @@
+## 1.3.1
+- Fixed mod breaking game without ProperSave
+
 ## 1.3.0
 - Added support for ProperSave
 
