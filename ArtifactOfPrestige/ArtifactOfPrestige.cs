@@ -50,6 +50,7 @@ namespace ArtifactOfPrestige
         public static int offset = 0;
         public static bool NetworkshowExtraBossesIndicator = false;
         public static List<GameObject> localIndicators = [];
+        public static int latentShrinesHit = 0;
 
         public void Awake()
         {
@@ -105,6 +106,7 @@ namespace ArtifactOfPrestige
             shrineBonusStacks = 0;
             offset = 0;
             NetworkshowExtraBossesIndicator = false;
+            latentShrinesHit = 0;
         }
 
         public bool ValidateArtifact(ArtifactBase artifact, List<ArtifactBase> artifactList)
