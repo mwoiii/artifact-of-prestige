@@ -32,7 +32,7 @@ namespace ArtifactOfPrestige
             {
                 ArtifactOfPrestige.shrineBonusStacks++;
             }
-            if (ArtifactOfPrestige.shrineBonusStacks > 1 && ArtifactOfPrestige.stackingIndicators.Value)
+            if (TeleporterInteraction.instance?.activationState <= TeleporterInteraction.ActivationState.IdleToCharging && ArtifactOfPrestige.shrineBonusStacks > 1 && ArtifactOfPrestige.stackingIndicators.Value)
             {
                 var instance = TeleporterInteraction.instance;
                 var original = instance.bossShrineIndicator;

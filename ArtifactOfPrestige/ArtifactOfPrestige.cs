@@ -34,7 +34,7 @@ namespace ArtifactOfPrestige
         public const string PluginGUID = PluginAuthor + "." + PluginName;
         public const string PluginAuthor = "Miyowi";
         public const string PluginName = "ArtifactOfPrestige";
-        public const string PluginVersion = "1.3.1";
+        public const string PluginVersion = "1.3.2";
 
         public static ConfigEntry<bool> stackingIndicators { get; set; }
         public static ConfigEntry<bool> colouredIndicators { get; set; }
@@ -60,7 +60,7 @@ namespace ArtifactOfPrestige
 
             var tmpGo = new GameObject("tmpGo");
             tmpGo.AddComponent<NetworkIdentity>();
-            CentralNetworkObject = tmpGo.InstantiateClone("somethingUnique");
+            CentralNetworkObject = tmpGo.InstantiateClone("mwmwArtifactOfPrestige");
             GameObject.Destroy(tmpGo);
             CentralNetworkObject.AddComponent<Networking>();
 

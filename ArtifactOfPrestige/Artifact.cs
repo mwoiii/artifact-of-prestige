@@ -12,6 +12,7 @@ using UnityEngine.SceneManagement;
 using static RoR2.TeleporterInteraction;
 using UnityEngine.UIElements;
 using Newtonsoft.Json;
+using UnityEngine.AddressableAssets;
 
 
 namespace ArtifactOfPrestige
@@ -36,9 +37,9 @@ namespace ArtifactOfPrestige
         {
             Run.onRunStartGlobal += ResetValues;
             Stage.onStageStartGlobal += SetValues;
-            On.RoR2.TeleporterInteraction.AddShrineStack += UpdateValues;
+            On.RoR2.ShrineBossBehavior.AddShrineStack += UpdateValues;
             On.RoR2.SceneDirector.PopulateScene += SpawnShrine;
-
+            On.RoR2.ShrineBossBehavior.Start += AllowShrineAfterTeleporter;
             TeleporterInteraction.onTeleporterChargedGlobal += HideLocalIndicators;
             On.RoR2.ShrineBossBehavior.Start += ShrineMat;
             On.RoR2.TeleporterInteraction.Awake += TPMat;
@@ -75,15 +76,13 @@ namespace ArtifactOfPrestige
             }
         }
 
-        private void UpdateValues(On.RoR2.TeleporterInteraction.orig_AddShrineStack orig, TeleporterInteraction self)
+        private void UpdateValues(On.RoR2.ShrineBossBehavior.orig_AddShrineStack orig, ShrineBossBehavior self, Interactor interactor)
         {
-            if (self.activationState <= ActivationState.IdleToCharging)
-            {
-                ArtifactOfPrestige.bonusRewardCount++;
-                ArtifactOfPrestige.NetworkshowExtraBossesIndicator = true;
-                Networking.InvokeAddIndicator(ArtifactEnabled);
-            }
-            orig(self);
+            ArtifactOfPrestige.bonusRewardCount++;
+            ArtifactOfPrestige.NetworkshowExtraBossesIndicator = true;
+            Networking.InvokeAddIndicator(ArtifactEnabled);
+
+            orig(self, interactor);
         }
 
         private void SetValues(Stage stage)
@@ -182,6 +181,13 @@ namespace ArtifactOfPrestige
             ArtifactOfPrestige.offset += 2;
             child.SetActive(true);
             ArtifactOfPrestige.localIndicators.Add(child);
+        }
+
+        private void AllowShrineAfterTeleporter(On.RoR2.ShrineBossBehavior.orig_Start orig, ShrineBossBehavior self)
+        {
+            orig(self);
+
+            self.purchaseInteraction.setUnavailableOnTeleporterActivated = !ArtifactEnabled;
         }
     }
 }
