@@ -37,9 +37,9 @@ namespace ArtifactOfPrestige
         {
             Run.onRunStartGlobal += ResetValues;
             Stage.onStageStartGlobal += SetValues;
-            On.RoR2.TeleporterInteraction.AddShrineStack += UpdateValues;
+            On.RoR2.ShrineBossBehavior.AddShrineStack += UpdateValues;
             On.RoR2.SceneDirector.PopulateScene += SpawnShrine;
-
+            On.RoR2.ShrineBossBehavior.Start += AllowShrineAfterTeleporter;
             TeleporterInteraction.onTeleporterChargedGlobal += HideLocalIndicators;
             On.RoR2.ShrineBossBehavior.Start += ShrineMat;
             On.RoR2.TeleporterInteraction.Awake += TPMat;
@@ -72,36 +72,23 @@ namespace ArtifactOfPrestige
                     ArtifactOfPrestige.bonusRewardCount = dataObj.bonusRewardCount;
                     ArtifactOfPrestige.shrineBonusStacks = dataObj.shrineBonusStacks;
                     ArtifactOfPrestige.NetworkshowExtraBossesIndicator = dataObj.NetworkshowExtraBossesIndicator;
-                    ArtifactOfPrestige.latentShrinesHit = dataObj.latentShrinesHit;
                 }
             }
         }
 
-        private void UpdateValues(On.RoR2.TeleporterInteraction.orig_AddShrineStack orig, TeleporterInteraction self)
+        private void UpdateValues(On.RoR2.ShrineBossBehavior.orig_AddShrineStack orig, ShrineBossBehavior self, Interactor interactor)
         {
-            if (self.activationState <= ActivationState.IdleToCharging)
-            {
-                ArtifactOfPrestige.bonusRewardCount++;
-                ArtifactOfPrestige.NetworkshowExtraBossesIndicator = true;
-                Networking.InvokeAddIndicator(ArtifactEnabled);
-            }
-            else
-            {
-                // shrines activated after TP are added to the "latent count", which is added to the total at the start of the next stage
-                ArtifactOfPrestige.latentShrinesHit++; 
-                ArtifactOfPrestige.NetworkshowExtraBossesIndicator = true;
-            }
-            orig(self);
+            ArtifactOfPrestige.bonusRewardCount++;
+            ArtifactOfPrestige.NetworkshowExtraBossesIndicator = true;
+            Networking.InvokeAddIndicator(ArtifactEnabled);
+
+            orig(self, interactor);
         }
 
         private void SetValues(Stage stage)
         {
             ArtifactOfPrestige.localIndicators = [];
             ArtifactOfPrestige.offset = 0;
-
-            ArtifactOfPrestige.bonusRewardCount += ArtifactOfPrestige.latentShrinesHit;
-            ArtifactOfPrestige.shrineBonusStacks += ArtifactOfPrestige.latentShrinesHit;
-            ArtifactOfPrestige.latentShrinesHit = 0;
 
             if (ArtifactOfPrestige.stackOutsidePrestige.Value && !ArtifactEnabled)
             {
@@ -157,7 +144,6 @@ namespace ArtifactOfPrestige
                 ArtifactOfPrestige.ResetValues();
             }
             LoadProperSave(); // loading from ProperSave, if it's active
-            AllowShrineAfterTeleporter(run); // allows shrines to be activated after teleporter is started, if the artifact is enabled
         }
 
         private void SpawnShrine(On.RoR2.SceneDirector.orig_PopulateScene orig, SceneDirector self)
@@ -197,19 +183,11 @@ namespace ArtifactOfPrestige
             ArtifactOfPrestige.localIndicators.Add(child);
         }
 
-        private void AllowShrineAfterTeleporter(Run run)
+        private void AllowShrineAfterTeleporter(On.RoR2.ShrineBossBehavior.orig_Start orig, ShrineBossBehavior self)
         {
-            var shrineBossPrefab = Addressables.LoadAssetAsync<GameObject>("RoR2/Base/ShrineBoss/ShrineBoss.prefab").WaitForCompletion();
-            var shrineBossPI = shrineBossPrefab.GetComponent<PurchaseInteraction>();
-            shrineBossPI.setUnavailableOnTeleporterActivated = !ArtifactEnabled;
+            orig(self);
 
-            var shrineBossSnowPrefab = Addressables.LoadAssetAsync<GameObject>("RoR2/Base/ShrineBoss/ShrineBossSandy Variant.prefab").WaitForCompletion();
-            var shrineBossSnowPI = shrineBossSnowPrefab.GetComponent<PurchaseInteraction>();
-            shrineBossSnowPI.setUnavailableOnTeleporterActivated = !ArtifactEnabled;
-
-            var shrineBossSandPrefab = Addressables.LoadAssetAsync<GameObject>("RoR2/Base/ShrineBoss/ShrineBossSnowy Variant.prefab").WaitForCompletion();
-            var shrineBossSandPI = shrineBossSandPrefab.GetComponent<PurchaseInteraction>();
-            shrineBossSandPI.setUnavailableOnTeleporterActivated = !ArtifactEnabled;
+            self.purchaseInteraction.setUnavailableOnTeleporterActivated = !ArtifactEnabled;
         }
     }
 }

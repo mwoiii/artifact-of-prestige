@@ -85,14 +85,12 @@ namespace ArtifactOfPrestige
         public int bonusRewardCount;
         public int shrineBonusStacks;
         public bool NetworkshowExtraBossesIndicator;
-        public int latentShrinesHit;
 
         public ArtifactOfPrestige_ProperSaveObj()
         {
             this.bonusRewardCount = ArtifactOfPrestige.bonusRewardCount;
             this.shrineBonusStacks = ArtifactOfPrestige.shrineBonusStacks;
             this.NetworkshowExtraBossesIndicator = ArtifactOfPrestige.NetworkshowExtraBossesIndicator;
-            this.latentShrinesHit = ArtifactOfPrestige.latentShrinesHit;
         }
     }
 }

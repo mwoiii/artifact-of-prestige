@@ -34,7 +34,7 @@ namespace ArtifactOfPrestige
         public const string PluginGUID = PluginAuthor + "." + PluginName;
         public const string PluginAuthor = "Miyowi";
         public const string PluginName = "ArtifactOfPrestige";
-        public const string PluginVersion = "1.3.1";
+        public const string PluginVersion = "1.3.2";
 
         public static ConfigEntry<bool> stackingIndicators { get; set; }
         public static ConfigEntry<bool> colouredIndicators { get; set; }
@@ -50,7 +50,6 @@ namespace ArtifactOfPrestige
         public static int offset = 0;
         public static bool NetworkshowExtraBossesIndicator = false;
         public static List<GameObject> localIndicators = [];
-        public static int latentShrinesHit = 0;
 
         public void Awake()
         {
@@ -61,7 +60,7 @@ namespace ArtifactOfPrestige
 
             var tmpGo = new GameObject("tmpGo");
             tmpGo.AddComponent<NetworkIdentity>();
-            CentralNetworkObject = tmpGo.InstantiateClone("somethingUnique");
+            CentralNetworkObject = tmpGo.InstantiateClone("mwmwArtifactOfPrestige");
             GameObject.Destroy(tmpGo);
             CentralNetworkObject.AddComponent<Networking>();
 
@@ -106,7 +105,6 @@ namespace ArtifactOfPrestige
             shrineBonusStacks = 0;
             offset = 0;
             NetworkshowExtraBossesIndicator = false;
-            latentShrinesHit = 0;
         }
 
         public bool ValidateArtifact(ArtifactBase artifact, List<ArtifactBase> artifactList)
