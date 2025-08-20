@@ -1,23 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 using BepInEx.Configuration;
-using UnityEngine.Networking;
-using UnityEngine;
-using BepInEx;
-using R2API;
-using RoR2;
-using System.Linq;
-using UnityEngine.SceneManagement;
-using static RoR2.TeleporterInteraction;
-using UnityEngine.UIElements;
 using Newtonsoft.Json;
-using UnityEngine.AddressableAssets;
+using R2API.Networking;
+using R2API.Networking.Interfaces;
+using RoR2;
+using UnityEngine;
+using UnityEngine.Networking;
 
 
-namespace ArtifactOfPrestige
-{    class Artifact : ArtifactBase
-    {
+namespace ArtifactOfPrestige {
+    class Artifact : ArtifactBase {
         public static ConfigEntry<int> TimesToPrintMessageOnStart;
         public override string ArtifactName => "Artifact of Prestige";
         public override string ArtifactLangTokenName => "ARTIFACT_OF_PRESTIGE";
@@ -26,15 +18,13 @@ namespace ArtifactOfPrestige
         public override Sprite ArtifactDisabledIcon => Assets.mainAssetBundle.LoadAsset<Sprite>("disabled.png");
 
         public Color pink = new Color(0.8f, 0.13f, 0.6f, 1.0f);
-        public override void Init(ConfigFile config)
-        {
+        public override void Init(ConfigFile config) {
             CreateLang();
             CreateArtifact();
             Hooks();
         }
 
-        public override void Hooks()
-        {
+        public override void Hooks() {
             Run.onRunStartGlobal += ResetValues;
             Stage.onStageStartGlobal += SetValues;
             On.RoR2.ShrineBossBehavior.AddShrineStack += UpdateValues;
@@ -45,27 +35,21 @@ namespace ArtifactOfPrestige
             On.RoR2.TeleporterInteraction.Awake += TPMat;
 
             // ProperSave compatibility
-            if (ProperSaveCompatibility.enabled)
-            {
+            if (ProperSaveCompatibility.enabled) {
                 ProperSaveCompatibility.AddEvent(SavePrestigeSettings);
             }
         }
 
-        private void SavePrestigeSettings(Dictionary<string, object> dict)
-        {
-            if (ArtifactEnabled)
-            {
+        private void SavePrestigeSettings(Dictionary<string, object> dict) {
+            if (ArtifactEnabled) {
                 string jsonString = JsonConvert.SerializeObject(new ArtifactOfPrestige_ProperSaveObj());
                 dict.Add("ArtifactOfPrestigeObj", jsonString);
             }
         }
 
-        private void LoadProperSave()
-        {
-            if (ProperSaveCompatibility.enabled)
-            {
-                if (ArtifactEnabled && ProperSaveCompatibility.IsLoading)
-                {
+        private void LoadProperSave() {
+            if (ProperSaveCompatibility.enabled) {
+                if (ArtifactEnabled && ProperSaveCompatibility.IsLoading) {
                     string jsonString = ProperSaveCompatibility.GetModdedData("ArtifactOfPrestigeObj");
 
                     ArtifactOfPrestige_ProperSaveObj dataObj = JsonConvert.DeserializeObject<ArtifactOfPrestige_ProperSaveObj>(jsonString);
@@ -76,48 +60,40 @@ namespace ArtifactOfPrestige
             }
         }
 
-        private void UpdateValues(On.RoR2.ShrineBossBehavior.orig_AddShrineStack orig, ShrineBossBehavior self, Interactor interactor)
-        {
+        private void UpdateValues(On.RoR2.ShrineBossBehavior.orig_AddShrineStack orig, ShrineBossBehavior self, Interactor interactor) {
             ArtifactOfPrestige.bonusRewardCount++;
             ArtifactOfPrestige.NetworkshowExtraBossesIndicator = true;
-            Networking.InvokeAddIndicator(ArtifactEnabled);
+            // Networking.InvokeAddIndicator(ArtifactEnabled);
+            NetMessageExtensions.Send(new SyncAddIndicator(ArtifactEnabled), (NetworkDestination)1);
 
             orig(self, interactor);
         }
 
-        private void SetValues(Stage stage)
-        {
+        private void SetValues(Stage stage) {
             ArtifactOfPrestige.localIndicators = [];
             ArtifactOfPrestige.offset = 0;
 
-            if (ArtifactOfPrestige.stackOutsidePrestige.Value && !ArtifactEnabled)
-            {
+            if (ArtifactOfPrestige.stackOutsidePrestige.Value && !ArtifactEnabled) {
                 ArtifactOfPrestige.shrineBonusStacks = 0;
             }
 
-            if ((TeleporterInteraction.instance ?? false) && ArtifactEnabled)
-            {
+            if ((TeleporterInteraction.instance ?? false) && ArtifactEnabled) {
                 var tp = TeleporterInteraction.instance;
-                if (NetworkServer.active)
-                {
+                if (NetworkServer.active) {
                     tp.bossGroup.bonusRewardCount = ArtifactOfPrestige.bonusRewardCount;
                     tp.shrineBonusStacks = ArtifactOfPrestige.shrineBonusStacks;
                     tp.NetworkshowExtraBossesIndicator = ArtifactOfPrestige.NetworkshowExtraBossesIndicator;
                 }
-                if (ArtifactOfPrestige.shrineBonusStacks > 1 && ArtifactOfPrestige.stackingIndicators.Value)
-                {
-                    for (int i = 0; i < ArtifactOfPrestige.shrineBonusStacks - 1; i++)
-                    {
+                if (ArtifactOfPrestige.shrineBonusStacks > 1 && ArtifactOfPrestige.stackingIndicators.Value) {
+                    for (int i = 0; i < ArtifactOfPrestige.shrineBonusStacks - 1; i++) {
                         LocalAddIndicator();
                     }
                 }
             }
         }
 
-        private void ShrineMat(On.RoR2.ShrineBossBehavior.orig_Start orig, ShrineBossBehavior self)
-        {
-            if ((ArtifactEnabled && ArtifactOfPrestige.colouredIndicators.Value) || ArtifactOfPrestige.colouredOutsidePrestige.Value)
-            {
+        private void ShrineMat(On.RoR2.ShrineBossBehavior.orig_Start orig, ShrineBossBehavior self) {
+            if ((ArtifactEnabled && ArtifactOfPrestige.colouredIndicators.Value) || ArtifactOfPrestige.colouredOutsidePrestige.Value) {
                 var myRend = self.gameObject.transform.Find("Symbol").GetComponent<MeshRenderer>();
                 Material[] materials = myRend.materials;
                 materials[0].SetColor("_TintColor", ArtifactOfPrestige.indicatorColor.Value);
@@ -126,11 +102,9 @@ namespace ArtifactOfPrestige
             orig(self);
         }
 
-        private void TPMat(On.RoR2.TeleporterInteraction.orig_Awake orig, TeleporterInteraction self)
-        {
+        private void TPMat(On.RoR2.TeleporterInteraction.orig_Awake orig, TeleporterInteraction self) {
             orig(self);
-            if ((ArtifactEnabled && ArtifactOfPrestige.colouredIndicators.Value) || ArtifactOfPrestige.colouredOutsidePrestige.Value)
-            {
+            if ((ArtifactEnabled && ArtifactOfPrestige.colouredIndicators.Value) || ArtifactOfPrestige.colouredOutsidePrestige.Value) {
                 var myRend = self.bossShrineIndicator.GetComponent<MeshRenderer>();
                 Material[] materials = myRend.materials;
                 materials[0].SetColor("_TintColor", ArtifactOfPrestige.indicatorColor.Value);
@@ -138,41 +112,33 @@ namespace ArtifactOfPrestige
             }
         }
 
-        private void ResetValues(Run run)
-        {
+        private void ResetValues(Run run) {
             if (ArtifactEnabled || ArtifactOfPrestige.stackOutsidePrestige.Value) {
                 ArtifactOfPrestige.ResetValues();
             }
             LoadProperSave(); // loading from ProperSave, if it's active
         }
 
-        private void SpawnShrine(On.RoR2.SceneDirector.orig_PopulateScene orig, SceneDirector self)
-        {
-            if (ArtifactEnabled && SceneInfo.instance.countsAsStage && (bool)self.teleporterSpawnCard)
-            {
+        private void SpawnShrine(On.RoR2.SceneDirector.orig_PopulateScene orig, SceneDirector self) {
+            if (ArtifactEnabled && SceneInfo.instance.countsAsStage && (bool)self.teleporterSpawnCard) {
                 Xoroshiro128Plus xoroshiro128Plus2 = new Xoroshiro128Plus(self.rng.nextUlong);
 
-                DirectorCore.instance.TrySpawnObject(new DirectorSpawnRequest(LegacyResourcesAPI.Load<SpawnCard>("SpawnCards/InteractableSpawnCard/iscShrineBoss"), new DirectorPlacementRule
-                {
+                DirectorCore.instance.TrySpawnObject(new DirectorSpawnRequest(LegacyResourcesAPI.Load<SpawnCard>("SpawnCards/InteractableSpawnCard/iscShrineBoss"), new DirectorPlacementRule {
                     placementMode = DirectorPlacementRule.PlacementMode.Random
                 }, xoroshiro128Plus2));
             }
             orig(self);
         }
 
-        private void HideLocalIndicators(TeleporterInteraction teleporterInteraction)
-        {
-            if (ArtifactEnabled || ArtifactOfPrestige.stackOutsidePrestige.Value)
-            {
-                foreach (var indicator in ArtifactOfPrestige.localIndicators)
-                {
+        private void HideLocalIndicators(TeleporterInteraction teleporterInteraction) {
+            if (ArtifactEnabled || ArtifactOfPrestige.stackOutsidePrestige.Value) {
+                foreach (var indicator in ArtifactOfPrestige.localIndicators) {
                     indicator.SetActive(false);
                 }
             }
         }
 
-        private void LocalAddIndicator()
-        {
+        private void LocalAddIndicator() {
             var instance = TeleporterInteraction.instance;
             var original = instance.bossShrineIndicator;
             var child = GameObject.Instantiate(original);
@@ -183,8 +149,7 @@ namespace ArtifactOfPrestige
             ArtifactOfPrestige.localIndicators.Add(child);
         }
 
-        private void AllowShrineAfterTeleporter(On.RoR2.ShrineBossBehavior.orig_Start orig, ShrineBossBehavior self)
-        {
+        private void AllowShrineAfterTeleporter(On.RoR2.ShrineBossBehavior.orig_Start orig, ShrineBossBehavior self) {
             orig(self);
 
             self.purchaseInteraction.setUnavailableOnTeleporterActivated = !ArtifactEnabled;
