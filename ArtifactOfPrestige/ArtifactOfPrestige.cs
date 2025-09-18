@@ -30,7 +30,7 @@ namespace ArtifactOfPrestige {
         public const string PluginGUID = PluginAuthor + "." + PluginName;
         public const string PluginAuthor = "Miyowi";
         public const string PluginName = "ArtifactOfPrestige";
-        public const string PluginVersion = "1.3.3";
+        public const string PluginVersion = "1.3.4";
 
         public static ConfigEntry<bool> stackingIndicators { get; set; }
         public static ConfigEntry<bool> colouredIndicators { get; set; }
